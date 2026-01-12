@@ -1,5 +1,5 @@
 import { supabase } from '../db/supabase'
-import { RelevantTweet } from '../filters/relevance'
+import { RelevantGrant } from '../filters/relevance'
 
 export interface GrantRecord {
   tweet_id: string
@@ -14,26 +14,26 @@ export interface GrantRecord {
 }
 
 export class GrantRepository {
-  static async exists(tweetId: string): Promise<boolean> {
+  static async exists(id: string): Promise<boolean> {
     const { data } = await supabase
       .from('grants')
       .select('tweet_id')
-      .eq('tweet_id', tweetId)
+      .eq('tweet_id', id)
       .limit(1)
 
     return !!data && data.length > 0
   }
 
-  static async save(tweet: RelevantTweet): Promise<void> {
+  static async save(grant: RelevantGrant): Promise<void> {
     await supabase.from('grants').insert({
-      tweet_id: tweet.tweetId,
-      source: 'twitter',
-      title: tweet.text.slice(0, 120),
-      protocol: tweet.author,
+      tweet_id: grant.id,
+      source: grant.source,
+      title: grant.text.slice(0, 120),
+      protocol: grant.author,
       amount: null,
       deadline: null,
-      confidence: tweet.score,
-      raw_tweet: tweet.text
+      confidence: grant.score,
+      raw_tweet: grant.text
     })
   }
 

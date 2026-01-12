@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { collectTweets } from './collectors/twitter'
-import { filterRelevantTweets } from './filters/relevance'
+import { collectAllGrants } from './collectors'
+import { filterRelevantGrants } from './filters/relevance'
 import { GrantRepository } from './repositories/grants'
 import { grantsToCSV } from './utils/csv'
 import { notifyDiscord } from './notifiers/discord'
@@ -8,19 +8,19 @@ import { notifyDiscord } from './notifiers/discord'
 export async function runWorker() {
   console.log('[Worker] started')
 
-  const tweets = await collectTweets()
-  const relevant = filterRelevantTweets(tweets)
+  const allGrants = await collectAllGrants()
+  const relevant = filterRelevantGrants(allGrants)
 
   for (const grant of relevant) {
-    const exists = await GrantRepository.exists(grant.tweetId)
+    const exists = await GrantRepository.exists(grant.id)
 
     if (exists) {
-      console.log(`[Skip] duplicate ${grant.tweetId}`)
+      console.log(`[Skip] duplicate ${grant.id}`)
       continue
     }
 
     await GrantRepository.save(grant)
-    console.log(`[Saved] ${grant.author} | score=${grant.score}`)
+    console.log(`[Saved] ${grant.author} | score=${grant.score} | ${grant.source}`)
 
     if (grant.score >= 15) {
       await notifyDiscord({
@@ -28,7 +28,7 @@ export async function runWorker() {
         title: grant.text,
         confidence: grant.score,
         category: grant.category,
-        source: 'twitter'
+        source: grant.source
       })
       console.log(`[Discord] sent ${grant.author}`)
     } else {

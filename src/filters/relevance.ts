@@ -1,26 +1,33 @@
 import { TWITTER_RADAR, GrantCategory } from '../sources/twitter'
-import { MockTweet } from '../collectors/twitter'
+import { GrantItem } from '../types/grant'
 
-export interface RelevantTweet {
-  tweetId: string
+export interface RelevantGrant {
+  id: string
   author: string
   text: string
   category: GrantCategory
   score: number
   createdAt: string
+  source: 'twitter' | 'web'
 }
 
-export function filterRelevantTweets(
-  tweets: MockTweet[],
+export function filterRelevantGrants(
+  grants: GrantItem[],
   threshold = 5
-): RelevantTweet[] {
-  return tweets
-    .map((tweet) => {
+): RelevantGrant[] {
+  return grants
+    .map((grant) => {
       let score = 0
       let category: GrantCategory = 'unknown'
 
+      // Web grants start with higher base score
+      if (grant.source === 'web') {
+        score = 10
+        category = 'ecosystem'
+      }
+
       const source = TWITTER_RADAR.accounts.find(
-        (a) => a.account.toLowerCase() === tweet.author.toLowerCase()
+        (a) => a.account.toLowerCase() === grant.author.toLowerCase()
       )
 
       if (source) {
@@ -28,21 +35,23 @@ export function filterRelevantTweets(
         category = source.category
       }
 
+      const text = grant.description.toLowerCase()
       for (const keyword of TWITTER_RADAR.keywords) {
-        if (tweet.text.toLowerCase().includes(keyword.term.toLowerCase())) {
+        if (text.includes(keyword.term.toLowerCase())) {
           score += keyword.weight
           category = category === 'unknown' ? keyword.category : category
         }
       }
 
       return {
-        tweetId: tweet.id,
-        author: tweet.author,
-        text: tweet.text,
+        id: grant.id,
+        author: grant.author,
+        text: grant.description,
         category,
         score,
-        createdAt: tweet.createdAt
+        createdAt: grant.createdAt,
+        source: grant.source
       }
     })
-    .filter((tweet) => tweet.score >= threshold)
+    .filter((grant) => grant.score >= threshold)
 }

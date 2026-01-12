@@ -29,6 +29,15 @@ Thumbs.db
 logs/
 *.log
 
+# Documentation (não versionar)
+copilot.md
+📌*.md
+📘*.md
+
 # Temporary files
 *.tmp
 .cache/
+
+# CSV exports
+grants_last_60_days.csv
+*.csv
