@@ -3,6 +3,7 @@ import 'dotenv/config'
 export const config = {
   env: process.env.NODE_ENV || 'dev',
   cron: process.env.WORKER_CRON || '*/30 * * * *',
+  twitterMode: (process.env.TWITTER_MODE || 'mock') as 'mock' | 'real',
 
   supabase: {
     url: process.env.SUPABASE_URL!,

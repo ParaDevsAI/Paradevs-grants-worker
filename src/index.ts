@@ -1,15 +1,13 @@
-import cron from 'node-cron'
 import { runWorker } from './worker'
-import { config } from './config'
 
-console.log('[App] Worker initialized')
+async function main() {
+  console.log('[App] Worker initialized')
+  await runWorker()
+  console.log('[App] Worker completed successfully')
+  process.exit(0)
+}
 
-runWorker().catch(err => console.error('[Worker Error]', err))
-
-cron.schedule(config.cron, async () => {
-  try {
-    await runWorker()
-  } catch (err) {
-    console.error('[Worker Error]', err)
-  }
+main().catch(err => {
+  console.error('[App] Fatal error', err)
+  process.exit(1)
 })

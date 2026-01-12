@@ -29,9 +29,6 @@ Thumbs.db
 logs/
 *.log
 
-# Markdown documentation (não versionar)
-*.md
-
 # Temporary files
 *.tmp
 .cache/

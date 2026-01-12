@@ -1,4 +1,6 @@
 import { TWITTER_RADAR } from '../sources/twitter'
+import { config } from '../config'
+import { collectTwitterReal } from './twitter-real'
 
 export interface MockTweet {
   id: string
@@ -8,7 +10,7 @@ export interface MockTweet {
   source: 'twitter'
 }
 
-export async function collectTweets(): Promise<MockTweet[]> {
+async function collectTweetsMock(): Promise<MockTweet[]> {
   const now = new Date().toISOString()
 
   return [
@@ -55,4 +57,14 @@ export async function collectTweets(): Promise<MockTweet[]> {
       source: 'twitter'
     }
   ]
+}
+
+export async function collectTweets(): Promise<MockTweet[]> {
+  console.log(`[Collector] mode: ${config.twitterMode}`)
+
+  if (config.twitterMode === 'real') {
+    return await collectTwitterReal()
+  }
+
+  return await collectTweetsMock()
 }
