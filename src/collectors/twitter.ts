@@ -32,6 +32,27 @@ export async function collectTweets(): Promise<MockTweet[]> {
       text: 'Just shipped a side project using solidity. Feeling proud!',
       createdAt: now,
       source: 'twitter'
+    },
+    {
+      id: 'tweet-004',
+      author: 'optimismFND',
+      text: 'Optimism Collective is launching a new grant program for public goods builders. Apply for funding now!',
+      createdAt: now,
+      source: 'twitter'
+    },
+    {
+      id: 'tweet-005',
+      author: 'aave',
+      text: 'Excited to announce a new developer grant initiative. Check out the details!',
+      createdAt: now,
+      source: 'twitter'
+    },
+    {
+      id: 'tweet-006',
+      author: 'ethereum',
+      text: 'Ethereum Foundation grants program now accepting applications for Q2 2026. Focus on scaling and security.',
+      createdAt: now,
+      source: 'twitter'
     }
   ]
 }

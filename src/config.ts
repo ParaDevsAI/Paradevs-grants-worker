@@ -10,5 +10,5 @@ export const config = {
   },
 
   openaiKey: process.env.OPENAI_API_KEY,
-  discordWebhook: process.env.DISCORD_WEBHOOK_URL
+  discordWebhook: process.env.DISCORD_WEBHOOK
 }

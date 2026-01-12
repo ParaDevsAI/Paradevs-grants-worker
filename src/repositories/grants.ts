@@ -13,14 +13,6 @@ export interface GrantRecord {
   created_at: string
 }
 
-/**
- * GrantRepository
- *
- * Responsável por:
- * - deduplicação
- * - persistência
- * - queries básicas
- */
 export class GrantRepository {
   static async exists(tweetId: string): Promise<boolean> {
     const { data } = await supabase

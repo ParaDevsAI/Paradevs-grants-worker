@@ -10,14 +10,6 @@ export interface RelevantTweet {
   createdAt: string
 }
 
-/**
- * Filtro de relevância
- *
- * Estratégia:
- * + score por conta confiável
- * + score por palavra-chave
- * threshold simples
- */
 export function filterRelevantTweets(
   tweets: MockTweet[],
   threshold = 5
