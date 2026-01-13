@@ -30,17 +30,46 @@ export async function collectBlockchainGrants(): Promise<GrantItem[]> {
         })
         .slice(0, 10)
         .map((link) => {
-          const title = link.textContent?.trim() || ''
+    
+          const rawTitle = link.textContent?.trim() || ''
+          const title = rawTitle.replace(/\s+/g, ' ').slice(0, 200)
+          
           const href = link.getAttribute('href') || ''
-          const parent = link.closest('div, article, section')
-          const description = parent?.textContent?.trim() || ''
-
-          return { title, href, description }
+        
+          const parent = link.closest('div, article, section, li')
+          let description = ''
+          
+          if (parent) {
+            const siblings = Array.from(parent.querySelectorAll('p, span, div'))
+            const texts = siblings
+              .map(el => el.textContent?.trim())
+              .filter(t => t && t.length > 20 && t.length < 300)
+            
+            description = texts[0] || parent.textContent?.trim() || ''
+          }
+          
+          if (!description || description === title) {
+            description = `${title} - Visit page for details`
+          }
+          
+          return { 
+            title, 
+            href, 
+            description: description.replace(/\s+/g, ' ').slice(0, 500) 
+          }
         })
     )
 
     for (const item of items) {
-      if (!item.title || item.title.length < 10) continue
+      if (!item.title || item.title.trim().length < 10) {
+        console.log('[Web] Skipping grant with invalid title:', item.title)
+        continue
+      }
+      
+      if (!item.description || item.description.trim().length < 20) {
+        console.log('[Web] Skipping grant with invalid description')
+        continue
+      }
 
       const id = `blockchain-grants-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       const fullUrl = item.href.startsWith('http')
@@ -51,9 +80,10 @@ export async function collectBlockchainGrants(): Promise<GrantItem[]> {
         id,
         source: 'web',
         origin: 'blockchain-grants-org',
-        title: item.title.slice(0, 200),
-        description: item.description.slice(0, 500) || item.title,
-        url: fullUrl,
+        title: item.title.trim().slice(0, 200),
+        description: item.description.trim().slice(0, 500),
+        url: fullUrl,  
+        apply_url: fullUrl,  
         author: 'blockchain-grants-org',
         createdAt: new Date().toISOString()
       })

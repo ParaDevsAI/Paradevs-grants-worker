@@ -4,14 +4,21 @@ import { collectWebGrants } from './web'
 import { GrantItem } from '../types/grant'
 
 function twitterToGrantItem(tweet: MockTweet): GrantItem {
+  const text = tweet.text.trim()
+  
+  if (!text || text.length < 10) {
+    throw new Error(`Invalid tweet text: ${tweet.id}`)
+  }
+  
   return {
     id: tweet.id,
     source: 'twitter',
     origin: tweet.author,
-    title: tweet.text.slice(0, 120),
-    description: tweet.text,
+    title: text.slice(0, 120),
+    description: text,
     author: tweet.author,
-    createdAt: tweet.createdAt
+    createdAt: tweet.createdAt,
+    info_url: tweet.info_url  
   }
 }
 
@@ -21,7 +28,18 @@ export async function collectAllGrants(): Promise<GrantItem[]> {
   const allGrants: GrantItem[] = []
 
   const tweets = await collectTweets()
-  const twitterGrants = tweets.map(twitterToGrantItem)
+  
+  const twitterGrants = tweets
+    .map(tweet => {
+      try {
+        return twitterToGrantItem(tweet)
+      } catch (err) {
+        console.log(`[Collector] Skipping invalid tweet: ${tweet.id}`)
+        return null
+      }
+    })
+    .filter((g): g is GrantItem => g !== null)
+  
   allGrants.push(...twitterGrants)
 
   if (config.twitterMode === 'real') {

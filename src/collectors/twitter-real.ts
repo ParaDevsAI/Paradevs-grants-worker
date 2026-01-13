@@ -39,7 +39,12 @@ export async function collectTwitterReal(): Promise<MockTweet[]> {
   for (const account of ACCOUNTS) {
     try {
       const url = `https://twitter.com/${account}`
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })
+      await page.goto(url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 20000
+      })
+
+      await page.waitForTimeout(2000)
 
       await page.waitForSelector('article', { timeout: 10000 })
 
@@ -59,12 +64,15 @@ export async function collectTwitterReal(): Promise<MockTweet[]> {
         if (!item.text || !item.id) continue
         if (!isGrantTweet(item.text)) continue
 
+        const tweetUrl = `https://twitter.com/${account}/status/${item.id}`
+
         tweets.push({
           id: `twitter-${account}-${item.id}`,
           text: item.text,
           author: account,
           createdAt: new Date().toISOString(),
-          source: 'twitter'
+          source: 'twitter',
+          info_url: tweetUrl  
         })
         collected++
       }

@@ -10,6 +10,7 @@ export const config = {
     key: process.env.SUPABASE_KEY!
   },
 
+  geminiApiKey: process.env.GEMINI_API_KEY,
   openaiKey: process.env.OPENAI_API_KEY,
   discordWebhook: process.env.DISCORD_WEBHOOK
 }
