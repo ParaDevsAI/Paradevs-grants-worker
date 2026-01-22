@@ -5,7 +5,6 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     startCommand: npm run bot
-    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
