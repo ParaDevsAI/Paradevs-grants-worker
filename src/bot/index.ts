@@ -3,6 +3,8 @@ import { config as loadEnv } from 'dotenv'
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import { GrantRepository } from '../repositories/grants'
+import { grantsToCSV } from '../utils/csv'
 
 loadEnv()
 
@@ -64,32 +66,37 @@ client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return
 
   if (interaction.commandName === 'csv') {
-    const filePath = path.resolve('grants_last_60_days.csv')
-
-    if (!fs.existsSync(filePath)) {
-      await interaction.reply({
-        content: '❌ CSV not found. The worker needs to run at least once to generate the file.',
-        ephemeral: true
-      })
-      return
-    }
-
     try {
-      const file = new AttachmentBuilder(filePath, {
+      await interaction.deferReply()
+
+      console.log('[Bot] Fetching grants from Supabase...')
+      const grants = await GrantRepository.findLast60Days()
+
+      if (grants.length === 0) {
+        await interaction.editReply({
+          content: '❌ No grants found in the last 60 days.'
+        })
+        return
+      }
+
+      console.log(`[Bot] Found ${grants.length} grants, generating CSV...`)
+      const csv = grantsToCSV(grants)
+      const buffer = Buffer.from(csv, 'utf-8')
+
+      const file = new AttachmentBuilder(buffer, {
         name: 'grants_last_60_days.csv'
       })
 
-      await interaction.reply({
-        content: '📄 **Latest Grants CSV** (last 60 days)\n\nUse this for prospecting, research, or batch submissions.',
+      await interaction.editReply({
+        content: `📄 **Latest Grants CSV** (last 60 days)\n\n✅ ${grants.length} grants found\n\nUse this for prospecting, research, or batch submissions.`,
         files: [file]
       })
       
-      console.log(`[Bot] CSV sent to ${interaction.user.tag}`)
+      console.log(`[Bot] CSV sent to ${interaction.user.tag} (${grants.length} grants)`)
     } catch (error) {
-      console.error('[Bot] Error sending CSV:', error)
-      await interaction.reply({
-        content: '❌ Failed to send CSV. Try again later.',
-        ephemeral: true
+      console.error('[Bot] Error generating CSV:', error)
+      await interaction.editReply({
+        content: '❌ Failed to generate CSV. Try again later.'
       })
     }
   }
