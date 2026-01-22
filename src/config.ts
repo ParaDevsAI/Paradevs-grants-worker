@@ -7,10 +7,10 @@ export const config = {
 
   supabase: {
     url: process.env.SUPABASE_URL!,
-    key: process.env.SUPABASE_KEY!
+    key: process.env.SUPABASE_ANON_KEY!
   },
 
   geminiApiKey: process.env.GEMINI_API_KEY,
   openaiKey: process.env.OPENAI_API_KEY,
-  discordWebhook: process.env.DISCORD_WEBHOOK
+  discordWebhook: process.env.DISCORD_WEBHOOK_URL
 }
