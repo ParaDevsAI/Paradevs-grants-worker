@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Node
 node_modules/
@@ -29,9 +30,23 @@ Thumbs.db
 logs/
 *.log
 
-# Markdown documentation (não versionar)
-*.md
-
 # Temporary files
 *.tmp
 .cache/
+
+# CSV exports
+*.csv
+
+# Markdown documentation files
+*.md
+!README.md
+
+# SQL migration files
+migrations/
+*.sql
+
+# Production docs
+*production*.md
+*deploy*.md
+DEPLOY.md
+PRODUCTION.md

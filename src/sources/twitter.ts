@@ -27,9 +27,15 @@ export const TWITTER_ACCOUNTS: TwitterSource[] = [
   { account: 'solana', category: 'ecosystem', weight: 5 },
   { account: 'nearprotocol', category: 'ecosystem', weight: 4 },
   { account: 'optimismFND', category: 'ecosystem', weight: 5 },
+  { account: 'stellarorg', category: 'ecosystem', weight: 5 },
+  { account: 'trondao', category: 'ecosystem', weight: 4 },
+  { account: 'ETCGrantsDao', category: 'dao', weight: 5 },
+  { account: 'NEARProtocol', category: 'ecosystem', weight: 4 },
 
   { account: 'aave', category: 'defi', weight: 4 },
+  { account: 'AaveGrants', category: 'defi', weight: 5 },
   { account: 'uniswap', category: 'defi', weight: 4 },
+  { account: 'prezenti_grants', category: 'defi', weight: 4 },
 
   { account: 'filecoin', category: 'infrastructure', weight: 4 },
   { account: 'chainlink', category: 'infrastructure', weight: 4 },
@@ -51,6 +57,7 @@ export const TWITTER_KEYWORDS: TwitterKeyword[] = [
 
   { term: 'ecosystem support', category: 'ecosystem', weight: 3 },
   { term: 'apply for grants', category: 'ecosystem', weight: 5 },
+  { term: 'community fund', category: 'ecosystem', weight: 5 },
 
   { term: 'AI grant', category: 'ai', weight: 4 },
   { term: 'research grant', category: 'research', weight: 4 }
