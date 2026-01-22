@@ -18,6 +18,10 @@ export interface RelevantGrant {
   info_url?: string | undefined
   apply_instructions?: string | undefined
   
+  // Additional metadata
+  amount?: string | undefined
+  deadline?: string | undefined
+  
   // AI Cache fields
   ai_analyzed?: boolean
   ai_apply?: boolean
@@ -124,7 +128,9 @@ export function filterRelevantGrants(
         source: grant.source,
         apply_url: grant.apply_url,
         info_url: grant.info_url,
-        apply_instructions: grant.apply_instructions
+        apply_instructions: grant.apply_instructions,
+        amount: grant.amount,
+        deadline: grant.deadline
       }
     })
     .filter((grant) => grant.score >= threshold)

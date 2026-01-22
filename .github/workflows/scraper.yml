@@ -1,0 +1,44 @@
+# GitHub Actions - Rodar a cada 2 dias
+name: Grants Scraper
+
+on:
+  schedule:
+    - cron: '0 0 */2 * *'  # A cada 2 dias às 00:00 UTC (21:00 BRT)
+  workflow_dispatch:  # Permite rodar manualmente
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Instalar dependências
+        run: npm ci
+      
+      - name: Compilar TypeScript
+        run: npm run build
+      
+      - name: Executar scraper
+        run: npm start
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      
+      - name: Upload CSV
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: grants-csv
+          path: grants_last_60_days.csv
+          retention-days: 30

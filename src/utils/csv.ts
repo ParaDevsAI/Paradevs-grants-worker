@@ -39,6 +39,14 @@ function resolveApplyLink(grant: GrantRecord): string {
   return 'See grant page for application details'
 }
 
+function formatDateBR(dateString: string): string {
+  const date = new Date(dateString)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 export function grantsToCSV(grants: GrantRecord[]): string {
   const header = [
     'tweet_id',
@@ -61,7 +69,7 @@ export function grantsToCSV(grants: GrantRecord[]): string {
     g.amount ?? '',
     g.deadline ?? '',
     g.confidence,
-    g.created_at
+    formatDateBR(g.created_at)
   ])
 
   return [header.join(','), ...rows.map((r) => r.join(','))].join('\n')

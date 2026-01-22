@@ -36,6 +36,18 @@ export class GrantRepository {
     return !!data && data.length > 0
   }
 
+  static async existsByUrl(url: string): Promise<boolean> {
+    if (!url) return false
+    
+    const { data } = await supabase
+      .from('grants')
+      .select('tweet_id')
+      .or(`apply_url.eq.${url},info_url.eq.${url}`)
+      .limit(1)
+
+    return !!data && data.length > 0
+  }
+
   static async save(grant: RelevantGrant): Promise<void> {
     if (!grant.apply_url && !grant.info_url && !grant.apply_instructions) {
       console.log('[Repository] Skip: grant without apply action')
@@ -47,8 +59,8 @@ export class GrantRepository {
       source: grant.source,
       title: grant.text.slice(0, 120),
       protocol: grant.author,
-      amount: null,
-      deadline: null,
+      amount: grant.amount || null,
+      deadline: grant.deadline || null,
       confidence: grant.score,
       raw_tweet: grant.text,
       apply_url: grant.apply_url || null,

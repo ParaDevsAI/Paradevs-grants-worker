@@ -15,33 +15,39 @@ export async function runWorker() {
   const aiProvider = getAIProvider()
 
   for (const grant of relevant) {
-    const exists = await GrantRepository.exists(grant.id)
+    let exists = await GrantRepository.exists(grant.id)
+    
+    if (!exists && grant.source === 'web' && (grant.apply_url || grant.info_url)) {
+      const urlToCheck = grant.apply_url || grant.info_url || ''
+      exists = await GrantRepository.existsByUrl(urlToCheck)
+      
+      if (exists) {
+        console.log(`[Skip] duplicate URL ${urlToCheck.slice(0, 60)}...`)
+        continue
+      }
+    }
 
     if (exists) {
       console.log(`[Skip] duplicate ${grant.id}`)
       continue
     }
 
-    // 🧠 IA Cache: Só analisa UMA VEZ
-    // Guard clause: se já foi analisado, pula
     if (grant.ai_analyzed) {
       console.log(`[AI] Skipping already analyzed grant: ${grant.id}`)
       await GrantRepository.save(grant)
       continue
     }
 
-    // 🧠 FASE 2: IA roda APENAS em DISCOVERABLE não analisado
     let aiPromoted = false
     if (grant.status === 'discoverable' && !grant.ai_analyzed && aiProvider) {
       console.log(`[AI] Analyzing DISCOVERABLE grant: ${grant.id}`)
       
       const aiResult = await aiProvider.analyze({
-        title: grant.text.slice(0, 200), // título limpo
+        title: grant.text.slice(0, 200), 
         description: grant.text,
-        pageText: '' // TODO: extrair pageText quando tiver scraping de conteúdo
+        pageText: '' 
       })
 
-      // Marca como analisado (independente do resultado)
       grant.ai_analyzed = true
       grant.ai_model = 'gemini-2.5-flash'
       grant.ai_analyzed_at = new Date()
@@ -52,17 +58,15 @@ export async function runWorker() {
         grant.ai_summary = aiResult.summary || undefined
         grant.ai_category = aiResult.category || undefined
 
-        // Regra de promoção: só promove se tiver URL canônico
         if (aiResult.has_direct_apply && aiResult.apply_url && aiResult.confidence >= 0.7 && !grant.apply_url) {
           console.log(`[AI] Promoting to ACTIONABLE: url=${aiResult.apply_url}, confidence=${aiResult.confidence}`)
-          grant.apply_url = aiResult.apply_url // URL canônico
-          grant.apply_instructions = aiResult.apply_instructions || undefined // Explicação
+          grant.apply_url = aiResult.apply_url 
+          grant.apply_instructions = aiResult.apply_instructions || undefined 
           grant.status = 'actionable'
-          grant.score += 4 // bonus moderado
+          grant.score += 4 
           aiPromoted = true
         } else {
           console.log(`[AI] Keeping DISCOVERABLE: apply=${aiResult.has_direct_apply}, has_url=${!!aiResult.apply_url}, confidence=${aiResult.confidence}`)
-          // Se não promover, salva apenas as instruções
           if (aiResult.apply_instructions) {
             grant.apply_instructions = aiResult.apply_instructions
           }
