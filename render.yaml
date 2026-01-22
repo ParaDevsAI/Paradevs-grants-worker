@@ -1,5 +1,5 @@
 services:
-  - type: background
+  - type: web
     name: grants-discord-bot
     env: node
     plan: free

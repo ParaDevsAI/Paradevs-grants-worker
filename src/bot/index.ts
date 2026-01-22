@@ -1,9 +1,30 @@
 import { Client, GatewayIntentBits, REST, Routes, AttachmentBuilder } from 'discord.js'
 import { config as loadEnv } from 'dotenv'
+import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
 loadEnv()
+
+// Create HTTP server for Render
+const app = express()
+const PORT = process.env.PORT || 3000
+
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'online', 
+    bot: client.user?.tag || 'connecting...',
+    uptime: process.uptime()
+  })
+})
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' })
+})
+
+app.listen(PORT, () => {
+  console.log(`[HTTP] Server listening on port ${PORT}`)
+})
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds]
